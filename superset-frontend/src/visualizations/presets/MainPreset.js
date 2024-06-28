@@ -66,6 +66,9 @@ import {
   EchartsSunburstChartPlugin,
   EchartsBubbleChartPlugin,
   EchartsWaterfallChartPlugin,
+  EchartsNegativeChartPlugin,
+  EchartsLineGradientChartPlugin,
+  EchartsSelectedBarStylePlugin,
 } from '@superset-ui/plugin-chart-echarts';
 import {
   SelectFilterPlugin,
@@ -167,6 +170,13 @@ export default class MainPreset extends Preset {
         new EchartsSunburstChartPlugin().configure({ key: 'sunburst_v2' }),
         new HandlebarsChartPlugin().configure({ key: 'handlebars' }),
         new EchartsBubbleChartPlugin().configure({ key: 'bubble_v2' }),
+        new EchartsNegativeChartPlugin().configure({ key: 'negative' }),
+        new EchartsLineGradientChartPlugin().configure({
+          key: 'line-gradient',
+        }),
+        new EchartsSelectedBarStylePlugin().configure({
+          key: 'selected-bar-style',
+        }),
         ...experimentalPlugins,
       ],
     });

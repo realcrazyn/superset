@@ -36,6 +36,10 @@ export { BigNumberChartPlugin, BigNumberTotalChartPlugin } from './BigNumber';
 export { default as EchartsSunburstChartPlugin } from './Sunburst';
 export { default as EchartsBubbleChartPlugin } from './Bubble';
 export { default as EchartsWaterfallChartPlugin } from './Waterfall';
+//
+export { default as EchartsNegativeChartPlugin } from './NegativeValue';
+export { default as EchartsLineGradientChartPlugin } from './LineGradient';
+export { default as EchartsSelectedBarStylePlugin } from './SelectedBarStyle';
 
 export { default as BoxPlotTransformProps } from './BoxPlot/transformProps';
 export { default as FunnelTransformProps } from './Funnel/transformProps';
