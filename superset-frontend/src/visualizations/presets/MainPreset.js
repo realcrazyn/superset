@@ -69,6 +69,7 @@ import {
   EchartsNegativeChartPlugin,
   EchartsLineGradientChartPlugin,
   EchartsSelectedBarStylePlugin,
+  EchartsShareDatasetPlugin,
 } from '@superset-ui/plugin-chart-echarts';
 import {
   SelectFilterPlugin,
@@ -176,6 +177,9 @@ export default class MainPreset extends Preset {
         }),
         new EchartsSelectedBarStylePlugin().configure({
           key: 'selected-bar-style',
+        }),
+        new EchartsEchartsShareDatasetPlugin().configure({
+          key: 'share-daaset',
         }),
         ...experimentalPlugins,
       ],
