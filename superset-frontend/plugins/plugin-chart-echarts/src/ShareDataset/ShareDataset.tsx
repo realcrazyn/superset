@@ -17,7 +17,6 @@
  * under the License.
  */
 
-import { EchartsShareDatasetFormData } from './types';
 import React, {
   useRef,
   useEffect,
@@ -28,15 +27,17 @@ import React, {
   useCallback,
 } from 'react';
 import { styled } from '@superset-ui/core';
-import { ECharts, init } from 'echarts';
+import { ECharts, EChartsCoreOption, EChartsOption, init } from 'echarts';
+import { EchartsShareDatasetFormData } from './types';
 import { EchartsHandler, EchartsProps, EchartsStylesProps } from '../types';
+import { indexOf } from 'lodash';
 
 export default function EchartsLinearGradient(
   props: EchartsShareDatasetFormData,
 ) {
   const { height, width, echartOptions, refs } = props;
   return (
-    <Echart
+    <CustomEchart
       height={height}
       width={width}
       echartOptions={echartOptions}
@@ -50,6 +51,17 @@ const Styles = styled.div<EchartsStylesProps>`
   width: ${({ width }) => width};
 `;
 
+type EchartsCustomOptions = EChartsCoreOption & {
+  dataset?: {
+    source?: any[];
+  };
+  series?: any[];
+};
+
+type EchartsCustomProps = EchartsProps & {
+  echartOptions: EchartsCustomOptions;
+};
+
 function Echart(
   {
     width,
@@ -59,7 +71,7 @@ function Echart(
     zrEventHandlers,
     selectedValues = {},
     refs,
-  }: EchartsProps,
+  }: EchartsCustomProps,
   ref: React.Ref<EchartsHandler>,
 ) {
   const divRef = useRef<HTMLDivElement>(null);
@@ -135,26 +147,53 @@ function Echart(
   }, [width, height, handleSizeChange]);
 
   useEffect(() => {
-    chartRef.current?.on('updateAxisPointer', function (event: any) {
-      const xAxisInfo = event.axesInfo[0];
-      if (xAxisInfo) {
-        const dimension = xAxisInfo.value + 1;
-        chartRef.current?.setOption({
-          series: {
-            id: 'pie',
-            label: {
-              formatter: '{b}: {@[' + dimension + ']} ({d}%)',
-            },
-            encode: {
-              value: dimension,
-              tooltip: dimension,
-            },
-          },
-        });
-      }
-    });
-    return () => chartRef.current?.on('updateAxisPointer', () => {});
-  }, []);
+    if (chartRef && chartRef.current) {
+      chartRef.current?.on(
+        'updateAxisPointer',
+        function (event: any, b: any, c: any) {
+          const dataset = echartOptions?.dataset?.source;
+
+          const xAxisInfo = event.axesInfo[0];
+          if (xAxisInfo && dataset) {
+            const keys = dataset[0].filter(
+              (key: string, index: number) => index !== 0,
+            );
+
+            const dimension = xAxisInfo.value;
+            const pieData = dataset.find(
+              datasetElem => datasetElem[0] === dimension,
+            );
+            const finalData = keys.map(key => {
+              const keyIndex = indexOf(dataset[0], key);
+
+              return {
+                name: key,
+                value: pieData[keyIndex],
+                itemStyle: echartOptions?.series?.[keyIndex]?.itemStyle,
+              };
+            });
+
+            chartRef.current?.setOption({
+              series: {
+                id: 'pie',
+                label: {
+                  formatter: '{b}: {c} ({d}%)',
+                },
+                // encode: {
+                //   value: dimension,
+                //   tooltip: dimension,
+                // },
+                data: finalData,
+              },
+            });
+          }
+        },
+      );
+      return () => chartRef.current?.on('updateAxisPointer', () => {});
+    }
+  }, [echartOptions]);
 
   return <Styles ref={divRef} height={height} width={width} />;
 }
+
+const CustomEchart = forwardRef(Echart);

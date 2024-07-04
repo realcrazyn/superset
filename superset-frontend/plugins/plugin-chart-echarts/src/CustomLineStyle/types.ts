@@ -28,13 +28,28 @@ import {
   EchartsTimeseriesFormData,
 } from '../types';
 
-export type EchartsNegativeFormData = EchartsTimeseriesFormData;
+export type EchartsCustomLineStyleFormData = EchartsTimeseriesFormData & {
+  seriesSymbol?:
+    | 'circle'
+    | 'rect'
+    | 'roundRect'
+    | 'triangle'
+    | 'diamond'
+    | 'pin'
+    | 'arrow'
+    | 'none';
+  seriesSymbolSize?: number;
+  seriesLineWidth?: number;
+  seriesLineType?: 'solid' | 'dashed' | 'dotted';
+  seriesEdit?: boolean;
+};
 
-export interface EchartsNegativeChartProps
-  extends ChartProps<EchartsNegativeFormData> {
-  formData: EchartsNegativeFormData;
+export interface EchartsCustomLineStyleChartProps
+  extends ChartProps<EchartsCustomLineStyleFormData> {
+  formData: EchartsCustomLineStyleFormData;
   queriesData: ChartDataResponseResult[];
 }
 
-export type NegativeChartTransformedProps =
-  BaseTransformedProps<EchartsNegativeFormData> & CrossFilterTransformedProps;
+export type CustomLineStyleChartTransformedProps =
+  BaseTransformedProps<EchartsCustomLineStyleFormData> &
+    CrossFilterTransformedProps;

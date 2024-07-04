@@ -49,7 +49,6 @@ import { EChartsCoreOption, SeriesOption } from 'echarts';
 import { LineStyleOption } from 'echarts/types/src/util/types';
 
 import { DEFAULT_FORM_DATA } from './constants';
-
 import { parseAxisBound } from '../utils/controls';
 import {
   calculateLowerLogTick,
@@ -107,64 +106,81 @@ import {
   transformTimeseriesAnnotation,
 } from '../Timeseries/transformers';
 
-const formatData = (
-  series: SeriesOption[],
-  formData: EchartsTimeseriesFormData,
-) => {
-  const { selectedBarNameType, selectedBarColor, selectedBarNameValue } =
-    formData;
+const formatData = (series: any[], formData: EchartsTimeseriesFormData) => {
+  const customData = series
+    .map((ser: any, ind: number) =>
+      ind === 0
+        ? ser.data
+        : ser.data.map((sd: any) => sd.filter((d: any, i: any) => i !== 0)),
+    )
+    .reduce(
+      (pv, cv) =>
+        pv.length
+          ? pv.map((pv_v: any, pv_i: any) => [...pv_v, ...cv[pv_i]])
+          : cv,
+      [],
+    );
 
-  if (selectedBarNameType === 'index' && !Number.isNaN(+selectedBarNameValue)) {
-    return series.map(s => ({
-      ...s,
-      data: Array.isArray(s.data)
-        ? s.data.map((dataElement: any, dataElementIndex) =>
-            dataElementIndex + 1 === +selectedBarNameValue
-              ? {
-                  value: dataElement,
-                  itemStyle: {
-                    // eslint-disable-next-line theme-colors/no-literal-colors
-                    color: '#a90000',
-                  },
-                }
-              : dataElement,
-          )
-        : s.data,
-    }));
-  }
-  if (selectedBarNameType === 'name' && selectedBarNameValue) {
-    return series.map(s => ({
-      ...s,
-      data: Array.isArray(s.data)
-        ? s.data.map((dataElement: any) => {
-            if (
-              (Array.isArray(dataElement) &&
-                dataElement
-                  .map(e => (e.toString ? e?.toString() : e))
-                  .includes(selectedBarNameValue)) ||
-              (Array.isArray(dataElement) &&
-                dataElement
-                  .map(e => (e.toString ? e?.toString() : e))
-                  .includes(Date.parse(selectedBarNameValue).toString())) ||
-              // eslint-disable-next-line eqeqeq
-              dataElement == selectedBarNameValue
-            ) {
-              return {
-                value: dataElement,
-                itemStyle: {
-                  // eslint-disable-next-line theme-colors/no-literal-colors
-                  color: '#a90000',
-                },
-              };
-            }
+  const res = [
+    {
+      type: 'custom',
+      name: 'trend',
+      renderItem: (params: any, api: any) => {
+        const xValue = api.value(0);
+        const currentSeriesIndices = api.currentSeriesIndices();
+        const barLayout = api.barLayout({
+          barGap: '30%',
+          barCategoryGap: '20%',
+          count: currentSeriesIndices.length - 1,
+        });
+        const points = [];
 
-            return dataElement;
-          })
-        : s.data,
-    }));
-  }
+        const coordWidth = params.coordSys.width;
+        const barsWid = coordWidth / params.dataInsideLength;
+        const dim = barsWid / params.encode.y.length;
 
-  return series;
+        console.log(coordWidth, barsWid, dim, params, barLayout);
+
+        // eslint-disable-next-line no-plusplus
+        for (let i = 0; i < currentSeriesIndices.length; i++) {
+          const seriesIndex = currentSeriesIndices[i];
+          if (seriesIndex !== params.seriesIndex) {
+            const point = api.coord([xValue, api.value(seriesIndex)]);
+            point[0] =
+              point[0] + barLayout?.[i - 1].offsetCenter ||
+              point[0] - barsWid / 2 + dim * (i - 0.5);
+            point[1] -= 20;
+            points.push(point);
+          }
+        }
+        const style = api.style({
+          stroke: api.visual('color'),
+          fill: 'none',
+        });
+        return {
+          type: 'polyline',
+          shape: {
+            points,
+          },
+          style,
+        };
+      },
+      itemStyle: {
+        borderWidth: 2,
+      },
+      encode: {
+        x: 0,
+        y: customData[0].map((el: any, i: any) => i + 1),
+      },
+      data: customData,
+      z: 100,
+    },
+    // ...series,
+    ...series,
+  ];
+
+  console.log(res);
+  return res;
 };
 
 export default function transformProps(

@@ -334,6 +334,7 @@ export default function transformProps(
         lineStyle,
       },
     );
+
     if (transformedSeries) {
       if (stack === StackControlsValue.Stream) {
         // bug in Echarts - `stackStrategy: 'all'` doesn't work with nulls, so we cast them to 0
@@ -526,6 +527,13 @@ export default function transformProps(
     yAxis.inverse = true;
   }
 
+  const parseValue = (value: any) => {
+    if (seriesGradientIndex === 0) {
+      return xAxisTimeFormat === 'smart_date' ? Date.parse(value) : value;
+    }
+    return yAxisFormat === 'smart_date' ? Date.parse(value) : value;
+  };
+
   const echartOptions: EChartsCoreOption = {
     useUTC: true,
     grid: {
@@ -538,8 +546,8 @@ export default function transformProps(
         type: 'continuous',
         seriesIndex: 0,
         dimension: seriesGradientIndex ? undefined : 0,
-        min: seriesGradientMin || 1,
-        max: seriesGradientMax || 1,
+        min: parseValue(seriesGradientMin) || 1,
+        max: parseValue(seriesGradientMax) || 1,
       },
     ],
     xAxis,

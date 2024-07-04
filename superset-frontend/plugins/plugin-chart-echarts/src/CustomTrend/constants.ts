@@ -32,9 +32,9 @@ import {
   LegendType,
   OrientationType,
 } from '../types';
-import { EchartsSelectedBarStyleFormData } from './types';
+import { EchartsCustomTrendFormData } from './types';
 
-export const DEFAULT_FORM_DATA: Partial<EchartsSelectedBarStyleFormData> = {
+export const DEFAULT_FORM_DATA: Partial<EchartsCustomTrendFormData> = {
   // ...DEFAULT_LEGEND_FORM_DATA, // TODO: figure out why these break things for stories (e.g. Bubble Chart)
   // Here are the contents of DEFAULT_LEGEND_FORM_DATA:
   legendMargin: null,

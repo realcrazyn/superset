@@ -106,65 +106,42 @@ import {
   transformSeries,
   transformTimeseriesAnnotation,
 } from '../Timeseries/transformers';
+import { EchartsCustomLineStyleFormData } from './types';
 
-const formatData = (
-  series: SeriesOption[],
-  formData: EchartsTimeseriesFormData,
+const applyStyles = (
+  series: any[],
+  formData: EchartsCustomLineStyleFormData,
 ) => {
-  const { selectedBarNameType, selectedBarColor, selectedBarNameValue } =
-    formData;
+  const {
+    seriesEdit,
+    seriesSymbol,
+    seriesSymbolSize,
+    seriesLineType,
+    seriesLineWidth,
+    markerSize,
+  } = formData;
 
-  if (selectedBarNameType === 'index' && !Number.isNaN(+selectedBarNameValue)) {
-    return series.map(s => ({
-      ...s,
-      data: Array.isArray(s.data)
-        ? s.data.map((dataElement: any, dataElementIndex) =>
-            dataElementIndex + 1 === +selectedBarNameValue
-              ? {
-                  value: dataElement,
-                  itemStyle: {
-                    // eslint-disable-next-line theme-colors/no-literal-colors
-                    color: '#a90000',
-                  },
-                }
-              : dataElement,
-          )
-        : s.data,
-    }));
-  }
-  if (selectedBarNameType === 'name' && selectedBarNameValue) {
-    return series.map(s => ({
-      ...s,
-      data: Array.isArray(s.data)
-        ? s.data.map((dataElement: any) => {
-            if (
-              (Array.isArray(dataElement) &&
-                dataElement
-                  .map(e => (e.toString ? e?.toString() : e))
-                  .includes(selectedBarNameValue)) ||
-              (Array.isArray(dataElement) &&
-                dataElement
-                  .map(e => (e.toString ? e?.toString() : e))
-                  .includes(Date.parse(selectedBarNameValue).toString())) ||
-              // eslint-disable-next-line eqeqeq
-              dataElement == selectedBarNameValue
-            ) {
-              return {
-                value: dataElement,
-                itemStyle: {
-                  // eslint-disable-next-line theme-colors/no-literal-colors
-                  color: '#a90000',
-                },
-              };
-            }
-
-            return dataElement;
-          })
-        : s.data,
-    }));
+  if (!seriesEdit) {
+    return series;
   }
 
-  return series;
+  const styledSeries = series.map((ser: any) => ({
+    ...ser,
+    symbol: seriesSymbol,
+    symbolSize: markerSize,
+    lineStyle: ser.lineStyle
+      ? {
+          ...ser.lineStyle,
+          width: seriesLineWidth,
+          type: seriesLineType,
+        }
+      : {
+          width: seriesLineWidth,
+          type: seriesLineType,
+        },
+  }));
+
+  return styledSeries;
 };
 
 export default function transformProps(
@@ -248,7 +225,7 @@ export default function transformProps(
     yAxisTitleMargin,
     yAxisTitlePosition,
     zoomable,
-  }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
+  }: EchartsCustomLineStyleFormData = { ...DEFAULT_FORM_DATA, ...formData };
   const refs: Refs = {};
   const groupBy = ensureIsArray(groupby);
   const labelMap = Object.entries(label_map).reduce((acc, entry) => {
@@ -261,6 +238,8 @@ export default function transformProps(
     }
     return { ...acc, [entry[0]]: entry[1] };
   }, {});
+
+  console.log(formData);
 
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
   const rebasedData = rebaseForecastDatum(data, verboseMap);
@@ -647,7 +626,7 @@ export default function transformProps(
       ),
       data: legendData as string[],
     },
-    series: formatData(dedupSeries(series), formData),
+    series: applyStyles(dedupSeries(series), formData),
     toolbox: {
       show: zoomable,
       top: TIMESERIES_CONSTANTS.toolboxTop,

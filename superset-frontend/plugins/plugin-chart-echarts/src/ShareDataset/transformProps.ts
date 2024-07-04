@@ -38,6 +38,7 @@ import {
   isTimeseriesAnnotationLayer,
   t,
   TimeseriesChartDataResponseResult,
+  TimeseriesDataRecord,
 } from '@superset-ui/core';
 import {
   extractExtraMetrics,
@@ -106,6 +107,57 @@ import {
   transformSeries,
   transformTimeseriesAnnotation,
 } from '../Timeseries/transformers';
+
+const prepareSeries = (
+  series: SeriesOption[],
+  data: TimeseriesDataRecord[],
+  formData: EchartsTimeseriesFormData,
+) => {
+  const pieData = data[0]
+    ? Object.keys(data[0])
+        .filter(key => key !== formData.xAxis)
+        .map((key, keyIndex) => ({
+          value: data[0][key],
+          name: key,
+          // @ts-ignore
+          itemStyle: series[keyIndex]?.itemStyle,
+        }))
+    : [];
+
+  return [
+    ...dedupSeries(series).map(ser => ({ ...ser, smooth: true })),
+    {
+      type: 'pie',
+      id: 'pie',
+      radius: '30%',
+      center: ['50%', '25%'],
+      emphasis: {
+        focus: 'self',
+      },
+      label: {
+        formatter: '{b}: {c} ({d}%)',
+      },
+      // encode: {
+      //   itemName: formData.xAxis,
+      //   value: data[0][formData.xAxis],
+      //   tooltip: '2012',
+      // },
+      data: pieData,
+    },
+  ];
+};
+const formDataSet = (data: TimeseriesDataRecord[]) => {
+  if (!Array.isArray(data) || !data.length) return [];
+
+  return [Object.keys(data[0]), ...data.map(el => Object.values(el))];
+
+  // return [
+  //   Object.keys(data[0]).map((key, keyIndex) => [
+  //     key,
+  //     ...data.map(el => el[key]),
+  //   ]),
+  // ];
+};
 
 export default function transformProps(
   chartProps: EchartsTimeseriesChartProps,
@@ -187,9 +239,6 @@ export default function transformProps(
     yAxisTitle,
     yAxisTitleMargin,
     yAxisTitlePosition,
-    seriesGradientIndex,
-    seriesGradientMax,
-    seriesGradientMin,
     zoomable,
   }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
   const refs: Refs = {};
@@ -204,8 +253,6 @@ export default function transformProps(
     }
     return { ...acc, [entry[0]]: entry[1] };
   }, {});
-
-  console.log(formData);
 
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
   const rebasedData = rebaseForecastDatum(data, verboseMap);
@@ -531,17 +578,11 @@ export default function transformProps(
     grid: {
       ...defaultGrid,
       ...padding,
+      top: '55%',
     },
-    visualMap: [
-      {
-        show: false,
-        type: 'continuous',
-        seriesIndex: 0,
-        dimension: seriesGradientIndex ? undefined : 0,
-        min: seriesGradientMin || 1,
-        max: seriesGradientMax || 1,
-      },
-    ],
+    dataset: {
+      source: formDataSet(data),
+    },
     xAxis,
     yAxis,
     tooltip: {
@@ -602,7 +643,10 @@ export default function transformProps(
       ),
       data: legendData as string[],
     },
-    series: dedupSeries(series),
+    series: [
+      // ...dedupSeries(series),
+      ...prepareSeries(series, data, formData),
+    ],
     toolbox: {
       show: zoomable,
       top: TIMESERIES_CONSTANTS.toolboxTop,
@@ -633,6 +677,8 @@ export default function transformProps(
   const onFocusedSeries = (seriesName: string | null) => {
     focusedSeries = seriesName;
   };
+
+  console.log('colorScheme', colorScheme);
 
   return {
     echartOptions,

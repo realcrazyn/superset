@@ -89,8 +89,8 @@ export const DEFAULT_FORM_DATA: Partial<EchartsLineGradientFormData> = {
 };
 
 export const SERIES_INDEX_CHOICES = [
-  [1, t('X-axis')],
-  [0, t('Y-axis')],
+  [1, t('Y-axis')],
+  [0, t('X-axis')],
 ];
 
 export const customGradientElements: ControlSetRow[] = [

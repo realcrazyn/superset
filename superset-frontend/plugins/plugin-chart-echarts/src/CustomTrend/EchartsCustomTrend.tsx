@@ -16,25 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import {
-  ChartProps,
-  ChartDataResponseResult,
-  QueryFormData,
-} from '@superset-ui/core';
-import {
-  LegendFormData,
-  BaseTransformedProps,
-  CrossFilterTransformedProps,
-  EchartsTimeseriesFormData,
-} from '../types';
+import React from 'react';
+import { EchartsCustomTrendFormData } from './types';
+import Echart from '../components/Echart';
 
-export type EchartsNegativeFormData = EchartsTimeseriesFormData;
-
-export interface EchartsNegativeChartProps
-  extends ChartProps<EchartsNegativeFormData> {
-  formData: EchartsNegativeFormData;
-  queriesData: ChartDataResponseResult[];
+export default function EchartsCustomTrend(props: EchartsCustomTrendFormData) {
+  const { height, width, echartOptions, refs } = props;
+  return (
+    <Echart
+      height={height}
+      width={width}
+      echartOptions={echartOptions}
+      refs={refs}
+    />
+  );
 }
-
-export type NegativeChartTransformedProps =
-  BaseTransformedProps<EchartsNegativeFormData> & CrossFilterTransformedProps;

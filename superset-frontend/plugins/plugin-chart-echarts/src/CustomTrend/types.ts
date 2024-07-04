@@ -28,13 +28,18 @@ import {
   EchartsTimeseriesFormData,
 } from '../types';
 
-export type EchartsNegativeFormData = EchartsTimeseriesFormData;
+export type EchartsCustomTrendFormData = EchartsTimeseriesFormData & {
+  selectedBarNameType: 'name' | 'index' | undefined;
+  selectedBarColor: string;
+  selectedBarNameValue: string;
+};
 
-export interface EchartsNegativeChartProps
-  extends ChartProps<EchartsNegativeFormData> {
-  formData: EchartsNegativeFormData;
+export interface EchartsCustomTrendChartProps
+  extends ChartProps<EchartsCustomTrendFormData> {
+  formData: EchartsCustomTrendFormData;
   queriesData: ChartDataResponseResult[];
 }
 
-export type NegativeChartTransformedProps =
-  BaseTransformedProps<EchartsNegativeFormData> & CrossFilterTransformedProps;
+export type CustomTrendChartTransformedProps =
+  BaseTransformedProps<EchartsCustomTrendFormData> &
+    CrossFilterTransformedProps;

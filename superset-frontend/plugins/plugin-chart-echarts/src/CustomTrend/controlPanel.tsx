@@ -41,7 +41,11 @@ import {
   xAxisLabelRotation,
 } from '../controls';
 import { OrientationType } from '../types';
-import { DEFAULT_FORM_DATA, TIME_SERIES_DESCRIPTION_TEXT } from './constants';
+import {
+  customElements,
+  DEFAULT_FORM_DATA,
+  TIME_SERIES_DESCRIPTION_TEXT,
+} from './constants';
 
 const {
   logAxis,
@@ -294,6 +298,7 @@ const config: ControlPanelConfig = {
       controlSetRows: [
         ...seriesOrderSection,
         ['color_scheme'],
+        ...customElements,
         ...showValueSection,
         [minorTicks],
         [

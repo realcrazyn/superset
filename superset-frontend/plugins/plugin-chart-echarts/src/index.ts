@@ -41,6 +41,8 @@ export { default as EchartsNegativeChartPlugin } from './NegativeValue';
 export { default as EchartsLineGradientChartPlugin } from './LineGradient';
 export { default as EchartsSelectedBarStylePlugin } from './SelectedBarStyle';
 export { default as EchartsShareDatasetPlugin } from './ShareDataset';
+export { default as EchartsCustomTrendPlugin } from './CustomTrend';
+export { default as EchartsCustomLineStylePlugin } from './CustomLineStyle';
 
 export { default as BoxPlotTransformProps } from './BoxPlot/transformProps';
 export { default as FunnelTransformProps } from './Funnel/transformProps';

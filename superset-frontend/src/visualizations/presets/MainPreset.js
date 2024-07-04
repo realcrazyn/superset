@@ -70,6 +70,8 @@ import {
   EchartsLineGradientChartPlugin,
   EchartsSelectedBarStylePlugin,
   EchartsShareDatasetPlugin,
+  EchartsCustomTrendPlugin,
+  EchartsCustomLineStylePlugin,
 } from '@superset-ui/plugin-chart-echarts';
 import {
   SelectFilterPlugin,
@@ -178,8 +180,14 @@ export default class MainPreset extends Preset {
         new EchartsSelectedBarStylePlugin().configure({
           key: 'selected-bar-style',
         }),
-        new EchartsEchartsShareDatasetPlugin().configure({
+        new EchartsShareDatasetPlugin().configure({
           key: 'share-daaset',
+        }),
+        new EchartsCustomTrendPlugin().configure({
+          key: 'custom-trend',
+        }),
+        new EchartsCustomLineStylePlugin().configure({
+          key: 'custom-line_style',
         }),
         ...experimentalPlugins,
       ],

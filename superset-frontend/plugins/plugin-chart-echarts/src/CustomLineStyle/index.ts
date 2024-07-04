@@ -24,26 +24,28 @@ import controlPanel from './controlPanel';
 import example1 from './images/example1.png';
 import example2 from './images/example2.png';
 import {
-  EchartsShareDatasetChartProps,
-  EchartsShareDatasetFormData,
+  EchartsCustomLineStyleChartProps,
+  EchartsCustomLineStyleFormData,
 } from './types';
 
-export default class EchartsShareDatasetPlugin extends ChartPlugin<
-  EchartsShareDatasetFormData,
-  EchartsShareDatasetChartProps
+export default class EchartsLineGeadientPlugin extends ChartPlugin<
+  EchartsCustomLineStyleFormData,
+  EchartsCustomLineStyleChartProps
 > {
   constructor() {
     super({
       buildQuery,
       controlPanel,
-      loadChart: () => import('./ShareDataset'),
+      loadChart: () => import('./EchartsCustomLineStyle'),
       metadata: new ChartMetadata({
         behaviors: [Behavior.InteractiveChart],
         category: t('Correlation'),
         credits: ['https://echarts.apache.org'],
-        description: t('Visualizes a metric with share dataset Alex!).'),
+        description: t(
+          'Visualizes a metric across some line with gradient Alex!).',
+        ),
         exampleGallery: [{ url: example1 }, { url: example2 }],
-        name: t('Share Dataset'),
+        name: t('Custom line style'),
         tags: [
           t('Multi-Dimensions'),
           t('Aesthetic'),
