@@ -87,7 +87,9 @@ export const DEFAULT_FORM_DATA: Partial<EchartsCustomLineStyleFormData> = {
   seriesSymbol: 'none',
   seriesSymbolSize: 20,
   seriesLineWidth: 4,
+  seriesLineColor: 'auto',
   seriesLineType: 'solid',
+  seriesSymbolBorderWidth: 0,
 };
 
 export const SERIES_SYMBOL_CHOICES = [
@@ -121,6 +123,20 @@ export const customStyleElements: ControlSetRow[] = [
   ],
   [
     {
+      name: 'series_line_color',
+      config: {
+        type: 'TextControl',
+        label: t('Line color'),
+        renderTrigger: true,
+        default: DEFAULT_FORM_DATA.seriesSymbolColor,
+        description: t('Maximal Gradient Value.'),
+        visibility: ({ controls }: ControlPanelsContainerProps) =>
+          Boolean(controls?.series_edit?.value),
+      },
+    },
+  ],
+  [
+    {
       name: 'markerEnabled',
       config: {
         type: 'CheckboxControl',
@@ -147,7 +163,7 @@ export const customStyleElements: ControlSetRow[] = [
         renderTrigger: true,
         description: t('You can select series symbol'),
         visibility: ({ controls }: ControlPanelsContainerProps) =>
-          Boolean(controls?.series_edit?.value),
+          Boolean(controls?.markerEnabled?.value),
       },
     },
   ],
@@ -169,7 +185,52 @@ export const customStyleElements: ControlSetRow[] = [
       },
     },
   ],
-
+  [
+    {
+      name: 'series_symbol_border_width',
+      config: {
+        type: 'SliderControl',
+        label: t('Marker border width'),
+        renderTrigger: true,
+        min: 0,
+        max: 20,
+        default: DEFAULT_FORM_DATA.markerSize,
+        description: t(
+          'Size of marker. Also applies to forecast observations.',
+        ),
+        visibility: ({ controls }: ControlPanelsContainerProps) =>
+          Boolean(controls?.markerEnabled?.value),
+      },
+    },
+  ],
+  [
+    {
+      name: 'series_symbol_border_color',
+      config: {
+        type: 'TextControl',
+        label: t('Marker border color'),
+        renderTrigger: true,
+        default: DEFAULT_FORM_DATA.seriesSymbolBorderColor,
+        description: t('Maximal Gradient Value.'),
+        visibility: ({ controls }: ControlPanelsContainerProps) =>
+          Boolean(controls?.series_edit?.value),
+      },
+    },
+  ],
+  [
+    {
+      name: 'series_symbol_color',
+      config: {
+        type: 'TextControl',
+        label: t('Marker color'),
+        renderTrigger: true,
+        default: DEFAULT_FORM_DATA.seriesSymbolColor,
+        description: t('Maximal Gradient Value.'),
+        visibility: ({ controls }: ControlPanelsContainerProps) =>
+          Boolean(controls?.series_edit?.value),
+      },
+    },
+  ],
   // [
   //   {
   //     name: 'series_symbol_size',

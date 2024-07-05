@@ -107,7 +107,10 @@ import {
   transformTimeseriesAnnotation,
 } from '../Timeseries/transformers';
 
-const configureNegative = (series: any) => {
+const configureNegative = (
+  series: any,
+  formData: EchartsTimeseriesFormData,
+) => {
   const newSeries = series.map((s: any) => ({
     ...s,
     data: s.data.map((d: any) =>
@@ -120,7 +123,31 @@ const configureNegative = (series: any) => {
     ),
   }));
 
-  return newSeries;
+  const labelSeries = newSeries.map((s: any) => ({
+    ...s,
+    data: s.data.map((d: any) =>
+      d.find((d_v: any) => +d_v < 0)
+        ? { value: d, label: { position: 'right', color: 'black' } }
+        : d,
+    ),
+    label: {
+      show: true,
+      formatter: (opts: any) => {
+        const { name } = opts;
+        console.log(opts, formData);
+
+        return isNaN(new Date(+name).getFullYear())
+          ? name
+          : new Date(+name).getFullYear();
+      },
+      color: 'white',
+      // position: 'right',
+    },
+  }));
+
+  console.log('labelSeries', labelSeries);
+
+  return labelSeries;
 };
 
 export default function transformProps(
@@ -172,7 +199,7 @@ export default function transformProps(
     minorTicks,
     onlyTotal,
     opacity,
-    orientation,
+    orientation = OrientationType.Horizontal,
     percentageThreshold,
     richTooltip,
     seriesType,
@@ -599,7 +626,7 @@ export default function transformProps(
           });
           const contentStyle =
             key === focusedSeries ? 'font-weight: 700' : 'opacity: 0.7';
-          rows.push(`<span style="${contentStyle}">${content}</span>`);
+          rows.push(`<span style="${contentStyle}"> ${content}</span>`);
         });
         if (stack) {
           rows.reverse();
@@ -619,7 +646,7 @@ export default function transformProps(
       ),
       data: legendData as string[],
     },
-    series: configureNegative(dedupSeries(series)),
+    series: configureNegative(dedupSeries(series), formData),
     toolbox: {
       show: zoomable,
       top: TIMESERIES_CONSTANTS.toolboxTop,

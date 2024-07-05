@@ -29,6 +29,7 @@ import {
   getCustomFormatter,
   getMetricLabel,
   getNumberFormatter,
+  getValueFormatter,
   getXAxisLabel,
   isDefined,
   isEventAnnotationLayer,
@@ -36,9 +37,13 @@ import {
   isIntervalAnnotationLayer,
   isPhysicalColumn,
   isTimeseriesAnnotationLayer,
+  LegendState,
+  NumberFormats,
+  sanitizeHtml,
   t,
   TimeseriesChartDataResponseResult,
   TimeseriesDataRecord,
+  ValueFormatter,
 } from '@superset-ui/core';
 import {
   extractExtraMetrics,
@@ -47,7 +52,10 @@ import {
   getTimeOffset,
 } from '@superset-ui/chart-controls';
 import { EChartsCoreOption, SeriesOption } from 'echarts';
-import { LineStyleOption } from 'echarts/types/src/util/types';
+import {
+  CallbackDataParams,
+  LineStyleOption,
+} from 'echarts/types/src/util/types';
 
 import { DEFAULT_FORM_DATA } from './constants';
 
@@ -107,11 +115,13 @@ import {
   transformSeries,
   transformTimeseriesAnnotation,
 } from '../Timeseries/transformers';
+import { EchartsPieLabelType } from '../Pie/types';
 
 const prepareSeries = (
   series: SeriesOption[],
   data: TimeseriesDataRecord[],
   formData: EchartsTimeseriesFormData,
+  numberFormatter: ValueFormatter,
 ) => {
   const pieData = data[0]
     ? Object.keys(data[0])
@@ -135,7 +145,14 @@ const prepareSeries = (
         focus: 'self',
       },
       label: {
-        formatter: '{b}: {c} ({d}%)',
+        show: true,
+
+        formatter: (params: CallbackDataParams) =>
+          formatPieLabel({
+            params,
+            numberFormatter,
+            labelType: EchartsPieLabelType.KeyValuePercent,
+          }),
       },
       // encode: {
       //   itemName: formData.xAxis,
@@ -146,6 +163,45 @@ const prepareSeries = (
     },
   ];
 };
+
+const percentFormatter = getNumberFormatter(NumberFormats.PERCENT_2_POINT);
+
+export function formatPieLabel({
+  params,
+  labelType,
+  numberFormatter,
+  sanitizeName = false,
+}: {
+  params: Pick<CallbackDataParams, 'name' | 'value' | 'percent'>;
+  labelType: EchartsPieLabelType;
+  numberFormatter: ValueFormatter;
+  sanitizeName?: boolean;
+}): string {
+  const { name: rawName = '', value, percent } = params;
+  const name = sanitizeName ? sanitizeHtml(rawName) : rawName;
+  const formattedValue = numberFormatter(value as number);
+  const formattedPercent = percentFormatter((percent as number) / 100);
+
+  switch (labelType) {
+    case EchartsPieLabelType.Key:
+      return name;
+    case EchartsPieLabelType.Value:
+      return formattedValue;
+    case EchartsPieLabelType.Percent:
+      return formattedPercent;
+    case EchartsPieLabelType.KeyValue:
+      return `${name}: ${formattedValue}`;
+    case EchartsPieLabelType.KeyValuePercent:
+      return `${name}: ${formattedValue} (${formattedPercent})`;
+    case EchartsPieLabelType.KeyPercent:
+      return `${name}: ${formattedPercent}`;
+    case EchartsPieLabelType.ValuePercent:
+      return `${formattedValue} (${formattedPercent})`;
+    default:
+      return name;
+  }
+}
+
 const formDataSet = (data: TimeseriesDataRecord[]) => {
   if (!Array.isArray(data) || !data.length) return [];
 
@@ -573,6 +629,14 @@ export default function transformProps(
     yAxis.inverse = true;
   }
 
+  const numberFormatter = getValueFormatter(
+    metrics,
+    currencyFormats,
+    columnFormats,
+    undefined,
+    currencyFormat,
+  );
+
   const echartOptions: EChartsCoreOption = {
     useUTC: true,
     grid: {
@@ -645,7 +709,7 @@ export default function transformProps(
     },
     series: [
       // ...dedupSeries(series),
-      ...prepareSeries(series, data, formData),
+      ...prepareSeries(series, data, formData, numberFormatter),
     ],
     toolbox: {
       show: zoomable,

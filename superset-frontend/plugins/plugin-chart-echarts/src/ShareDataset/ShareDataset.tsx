@@ -173,16 +173,14 @@ function Echart(
               };
             });
 
+            const pieSeries = echartOptions.series?.length
+              ? echartOptions.series?.[echartOptions.series?.length - 1]
+              : undefined;
+
             chartRef.current?.setOption({
               series: {
                 id: 'pie',
-                label: {
-                  formatter: '{b}: {c} ({d}%)',
-                },
-                // encode: {
-                //   value: dimension,
-                //   tooltip: dimension,
-                // },
+                label: pieSeries?.label,
                 data: finalData,
               },
             });

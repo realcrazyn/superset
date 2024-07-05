@@ -39,6 +39,10 @@ export type EchartsCustomLineStyleFormData = EchartsTimeseriesFormData & {
     | 'arrow'
     | 'none';
   seriesSymbolSize?: number;
+  seriesSymbolBorderWidth?: number;
+  seriesSymbolBorderColor?: string | undefined;
+  seriesSymbolColor?: string | undefined;
+  seriesLineColor?: string | undefined;
   seriesLineWidth?: number;
   seriesLineType?: 'solid' | 'dashed' | 'dotted';
   seriesEdit?: boolean;

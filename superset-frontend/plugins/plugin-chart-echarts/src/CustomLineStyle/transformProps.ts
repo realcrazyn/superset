@@ -117,8 +117,12 @@ const applyStyles = (
     seriesSymbol,
     seriesSymbolSize,
     seriesLineType,
+    seriesLineColor,
     seriesLineWidth,
     markerSize,
+    seriesSymbolBorderWidth,
+    seriesSymbolBorderColor,
+    seriesSymbolColor,
   } = formData;
 
   if (!seriesEdit) {
@@ -134,10 +138,25 @@ const applyStyles = (
           ...ser.lineStyle,
           width: seriesLineWidth,
           type: seriesLineType,
+          color: seriesLineColor,
         }
       : {
           width: seriesLineWidth,
           type: seriesLineType,
+          color: seriesLineColor,
+        },
+
+    itemStyle: ser.itemStyle
+      ? {
+          ...ser.itemStyle,
+          borderWidth: seriesSymbolBorderWidth,
+          borderColor: seriesSymbolBorderColor,
+          color: seriesSymbolColor,
+        }
+      : {
+          borderWidth: seriesSymbolBorderWidth,
+          borderColor: seriesSymbolBorderColor,
+          color: seriesSymbolColor,
         },
   }));
 
