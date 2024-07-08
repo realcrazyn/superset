@@ -32,13 +32,9 @@ import {
   LegendType,
   OrientationType,
 } from '../types';
-import { EchartsSelectedBarStyleFormData } from './types';
+import { EchartsDataTransformFilterFormData } from './types';
 
-export const PRIMARY_COLOR = { r: 0, g: 122, b: 135, a: 1 };
-
-export const DEFAULT_FORM_DATA: Partial<EchartsSelectedBarStyleFormData> = {
-  // ...DEFAULT_LEGEND_FORM_DATA, // TODO: figure out why these break things for stories (e.g. Bubble Chart)
-  // Here are the contents of DEFAULT_LEGEND_FORM_DATA:
+export const DEFAULT_FORM_DATA: Partial<EchartsDataTransformFilterFormData> = {
   legendMargin: null,
   legendOrientation: LegendOrientation.Top,
   legendType: LegendType.Scroll,
@@ -70,7 +66,7 @@ export const DEFAULT_FORM_DATA: Partial<EchartsSelectedBarStyleFormData> = {
   opacity: 0.2,
   orderDesc: true,
   rowLimit: 10000,
-  seriesType: EchartsTimeseriesSeriesType.Bar,
+  seriesType: EchartsTimeseriesSeriesType.Line,
   stack: false,
   tooltipTimeFormat: 'smart_date',
   truncateXAxis: true,
@@ -87,77 +83,35 @@ export const DEFAULT_FORM_DATA: Partial<EchartsSelectedBarStyleFormData> = {
   orientation: OrientationType.Vertical,
   sort_series_type: 'sum',
   sort_series_ascending: false,
-  selectedBarNameType: undefined,
-  selectedBarColorValue: PRIMARY_COLOR,
-  selectedBarNameValue: '',
+  seriesFilterColumn: '',
+  seriesFilterValues: '',
 };
-
-export const TIME_SERIES_DESCRIPTION_TEXT: string = t(
-  'When using other than adaptive formatting, labels may overlap',
-);
-
-export const SERIES_NAME_TYPE_CHOICES = [
-  ['name', t('Col name')],
-  ['index', t('Col index')],
-];
 
 export const customElements: ControlSetRow[] = [
   [
     {
-      name: 'selected_bar_name_type',
-      config: {
-        type: 'SelectControl',
-        freeForm: false,
-        label: t('Select bar by'),
-        choices: SERIES_NAME_TYPE_CHOICES,
-        default: DEFAULT_FORM_DATA.selectedBarNameType,
-        renderTrigger: true,
-        description: t(
-          'Based on what should series be ordered on the chart and legend',
-        ),
-      },
-    },
-  ],
-  [
-    {
-      name: 'selected_bar_name_value',
+      name: 'series_filter_column',
       config: {
         type: 'TextControl',
-        label: t('Name value'),
+        label: t('Filter column'),
         renderTrigger: true,
-        default: DEFAULT_FORM_DATA.selectedBarNameValue,
-        description: t('Name value'),
-        visibility: ({ controls }: ControlPanelsContainerProps) =>
-          Boolean(controls?.selected_bar_name_type?.value),
+        default: DEFAULT_FORM_DATA.seriesGradientMin,
+        description: t('Minimal Gradient Value.'),
+        // visibility: ({ controls }: ControlPanelsContainerProps) =>
+        //   Boolean(controls?.show_legend?.value),
       },
     },
   ],
   [
     {
-      name: 'selected_bar_color_value',
+      name: 'series_filter_values',
       config: {
-        type: 'ColorPickerControl',
-        label: t('Bar color'),
+        type: 'TextControl',
+        label: t('Filter Values'),
         renderTrigger: true,
-        default: DEFAULT_FORM_DATA.selectedBarColorValue,
-        description: t('Bar color'),
-        visibility: ({ controls }: ControlPanelsContainerProps) =>
-          Boolean(controls?.selected_bar_name_type?.value),
+        default: DEFAULT_FORM_DATA.seriesGradientMax,
+        description: t('Maximal Gradient Value.'),
       },
     },
   ],
-  // [
-  //   {
-  //     name: 'selected_bar_color',
-  //     config: {
-  //       type: 'TextControl',
-  //       label: t('Bar color'),
-  //       renderTrigger: true,
-  //       default: DEFAULT_FORM_DATA.selectedBarColor,
-  //       description: t('Maximal Gradient Value.'),
-  //       visibility: ({ controls }: ControlPanelsContainerProps) =>
-  //         Boolean(controls?.selected_bar_name_type?.value),
-  //     },
-  //   },
-  // ],
 ];

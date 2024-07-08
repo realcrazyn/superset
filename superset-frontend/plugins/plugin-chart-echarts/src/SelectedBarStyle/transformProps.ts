@@ -107,11 +107,25 @@ import {
   transformTimeseriesAnnotation,
 } from '../Timeseries/transformers';
 
+const transformColorObjToString = (
+  colorObj:
+    | {
+        r: number;
+        g: number;
+        b: number;
+        a: number;
+      }
+    | undefined,
+) =>
+  colorObj
+    ? `rgba(${colorObj.r},${colorObj.g},${colorObj.b},${colorObj.a})`
+    : '';
+
 const formatData = (
   series: SeriesOption[],
   formData: EchartsTimeseriesFormData,
 ) => {
-  const { selectedBarNameType, selectedBarColor, selectedBarNameValue } =
+  const { selectedBarNameType, selectedBarColorValue, selectedBarNameValue } =
     formData;
 
   if (selectedBarNameType === 'index' && !Number.isNaN(+selectedBarNameValue)) {
@@ -124,7 +138,9 @@ const formatData = (
                   value: dataElement,
                   itemStyle: {
                     // eslint-disable-next-line theme-colors/no-literal-colors
-                    color: '#a90000',
+                    color:
+                      transformColorObjToString(selectedBarColorValue) ||
+                      '#a90000',
                   },
                 }
               : dataElement,
@@ -153,7 +169,9 @@ const formatData = (
                 value: dataElement,
                 itemStyle: {
                   // eslint-disable-next-line theme-colors/no-literal-colors
-                  color: '#a90000',
+                  color:
+                    transformColorObjToString(selectedBarColorValue) ||
+                    '#a90000',
                 },
               };
             }

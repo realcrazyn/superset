@@ -27,10 +27,11 @@ import {
   CrossFilterTransformedProps,
   EchartsTimeseriesFormData,
 } from '../types';
+import { PRIMARY_COLOR } from './constants';
 
 export type EchartsSelectedBarStyleFormData = EchartsTimeseriesFormData & {
   selectedBarNameType: 'name' | 'index' | undefined;
-  selectedBarColor: string;
+  selectedBarColorValue: typeof PRIMARY_COLOR | undefined;
   selectedBarNameValue: string;
 };
 

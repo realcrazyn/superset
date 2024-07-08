@@ -72,6 +72,7 @@ import {
   EchartsShareDatasetPlugin,
   EchartsCustomTrendPlugin,
   EchartsCustomLineStylePlugin,
+  EchartsDataTransformFilterPlugin,
 } from '@superset-ui/plugin-chart-echarts';
 import {
   SelectFilterPlugin,
@@ -188,6 +189,9 @@ export default class MainPreset extends Preset {
         }),
         new EchartsCustomLineStylePlugin().configure({
           key: 'custom-line_style',
+        }),
+        new EchartsDataTransformFilterPlugin().configure({
+          key: 'custom-data-filter',
         }),
         ...experimentalPlugins,
       ],

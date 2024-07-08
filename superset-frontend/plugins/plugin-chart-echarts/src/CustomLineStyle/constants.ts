@@ -34,6 +34,8 @@ import {
 } from '../types';
 import { EchartsCustomLineStyleFormData } from './types';
 
+export const PRIMARY_COLOR = { r: 0, g: 122, b: 135, a: 1 };
+
 export const DEFAULT_FORM_DATA: Partial<EchartsCustomLineStyleFormData> = {
   legendMargin: null,
   legendOrientation: LegendOrientation.Top,
@@ -87,9 +89,11 @@ export const DEFAULT_FORM_DATA: Partial<EchartsCustomLineStyleFormData> = {
   seriesSymbol: 'none',
   seriesSymbolSize: 20,
   seriesLineWidth: 4,
-  seriesLineColor: 'auto',
+  seriesLineColor: PRIMARY_COLOR,
   seriesLineType: 'solid',
   seriesSymbolBorderWidth: 0,
+  seriesSymbolBorderColor: PRIMARY_COLOR,
+  seriesSymbolColor: PRIMARY_COLOR,
 };
 
 export const SERIES_SYMBOL_CHOICES = [
@@ -125,10 +129,10 @@ export const customStyleElements: ControlSetRow[] = [
     {
       name: 'series_line_color',
       config: {
-        type: 'TextControl',
+        type: 'ColorPickerControl',
         label: t('Line color'),
         renderTrigger: true,
-        default: DEFAULT_FORM_DATA.seriesSymbolColor,
+        default: DEFAULT_FORM_DATA.seriesLineColor,
         description: t('Maximal Gradient Value.'),
         visibility: ({ controls }: ControlPanelsContainerProps) =>
           Boolean(controls?.series_edit?.value),
@@ -146,6 +150,38 @@ export const customStyleElements: ControlSetRow[] = [
         description: t(
           'Draw a marker on data points. Only applicable for line types.',
         ),
+        visibility: ({ controls }: ControlPanelsContainerProps) =>
+          Boolean(controls?.series_edit?.value),
+      },
+    },
+  ],
+  [
+    {
+      name: 'series_line_type',
+      config: {
+        type: 'SelectControl',
+        freeForm: false,
+        label: t('Select series line type'),
+        choices: SERIES_LINE_TYPE_CHOICES,
+        default: DEFAULT_FORM_DATA.serieslineType,
+        renderTrigger: true,
+        description: t('You can select series line type'),
+        visibility: ({ controls }: ControlPanelsContainerProps) =>
+          Boolean(controls?.series_edit?.value),
+      },
+    },
+  ],
+  [
+    {
+      name: 'series_line_width',
+      config: {
+        type: 'SliderControl',
+        label: t('Line Size'),
+        renderTrigger: true,
+        min: 0,
+        max: 20,
+        default: DEFAULT_FORM_DATA.seriesLineWidth,
+        description: t('Size of line. Also applies to forecast observations.'),
         visibility: ({ controls }: ControlPanelsContainerProps) =>
           Boolean(controls?.series_edit?.value),
       },
@@ -207,13 +243,13 @@ export const customStyleElements: ControlSetRow[] = [
     {
       name: 'series_symbol_border_color',
       config: {
-        type: 'TextControl',
+        type: 'ColorPickerControl',
         label: t('Marker border color'),
         renderTrigger: true,
         default: DEFAULT_FORM_DATA.seriesSymbolBorderColor,
         description: t('Maximal Gradient Value.'),
         visibility: ({ controls }: ControlPanelsContainerProps) =>
-          Boolean(controls?.series_edit?.value),
+          Boolean(controls?.markerEnabled?.value),
       },
     },
   ],
@@ -221,13 +257,13 @@ export const customStyleElements: ControlSetRow[] = [
     {
       name: 'series_symbol_color',
       config: {
-        type: 'TextControl',
+        type: 'ColorPickerControl',
         label: t('Marker color'),
         renderTrigger: true,
         default: DEFAULT_FORM_DATA.seriesSymbolColor,
         description: t('Maximal Gradient Value.'),
         visibility: ({ controls }: ControlPanelsContainerProps) =>
-          Boolean(controls?.series_edit?.value),
+          Boolean(controls?.markerEnabled?.value),
       },
     },
   ],
@@ -246,38 +282,7 @@ export const customStyleElements: ControlSetRow[] = [
   //     },
   //   },
   // ],
-  [
-    {
-      name: 'series_line_type',
-      config: {
-        type: 'SelectControl',
-        freeForm: false,
-        label: t('Select series line type'),
-        choices: SERIES_LINE_TYPE_CHOICES,
-        default: DEFAULT_FORM_DATA.serieslineType,
-        renderTrigger: true,
-        description: t('You can select series line type'),
-        visibility: ({ controls }: ControlPanelsContainerProps) =>
-          Boolean(controls?.series_edit?.value),
-      },
-    },
-  ],
-  [
-    {
-      name: 'series_line_width',
-      config: {
-        type: 'SliderControl',
-        label: t('Line Size'),
-        renderTrigger: true,
-        min: 0,
-        max: 20,
-        default: DEFAULT_FORM_DATA.seriesLineWidth,
-        description: t('Size of line. Also applies to forecast observations.'),
-        visibility: ({ controls }: ControlPanelsContainerProps) =>
-          Boolean(controls?.series_edit?.value),
-      },
-    },
-  ],
+
   // [
   //   {
   //     name: 'series_line_width',

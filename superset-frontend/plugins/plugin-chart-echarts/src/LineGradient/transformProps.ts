@@ -529,9 +529,13 @@ export default function transformProps(
 
   const parseValue = (value: any) => {
     if (seriesGradientIndex === 0) {
-      return xAxisTimeFormat === 'smart_date' ? Date.parse(value) : value;
+      return Number.isNaN(new Date(+value).getFullYear())
+        ? value
+        : new Date(+value).getFullYear();
     }
-    return yAxisFormat === 'smart_date' ? Date.parse(value) : value;
+    return Number.isNaN(new Date(+value).getFullYear())
+      ? value
+      : new Date(+value).getFullYear();
   };
 
   const echartOptions: EChartsCoreOption = {

@@ -27,34 +27,20 @@ import {
   CrossFilterTransformedProps,
   EchartsTimeseriesFormData,
 } from '../types';
-import { PRIMARY_COLOR } from './constants';
 
-export type EchartsCustomLineStyleFormData = EchartsTimeseriesFormData & {
-  seriesSymbol?:
-    | 'circle'
-    | 'rect'
-    | 'roundRect'
-    | 'triangle'
-    | 'diamond'
-    | 'pin'
-    | 'arrow'
-    | 'none';
-  seriesSymbolSize?: number;
-  seriesSymbolBorderWidth?: number;
-  seriesSymbolBorderColor?: typeof PRIMARY_COLOR | undefined;
-  seriesSymbolColor?: typeof PRIMARY_COLOR | undefined;
-  seriesLineColor?: typeof PRIMARY_COLOR | undefined;
-  seriesLineWidth?: number;
-  seriesLineType?: 'solid' | 'dashed' | 'dotted';
-  seriesEdit?: boolean;
-};
+export type EchartsDataTransformFilterFormData = QueryFormData &
+  LegendFormData &
+  EchartsTimeseriesFormData & {
+    seriesFilterColumn?: string;
+    seriesFilterValues?: string;
+  };
 
-export interface EchartsCustomLineStyleChartProps
-  extends ChartProps<EchartsCustomLineStyleFormData> {
-  formData: EchartsCustomLineStyleFormData;
+export interface EchartsDataTransformFilterChartProps
+  extends ChartProps<EchartsDataTransformFilterFormData> {
+  formData: EchartsDataTransformFilterFormData;
   queriesData: ChartDataResponseResult[];
 }
 
-export type CustomLineStyleChartTransformedProps =
-  BaseTransformedProps<EchartsCustomLineStyleFormData> &
+export type DataTransformFilterChartTransformedProps =
+  BaseTransformedProps<EchartsDataTransformFilterFormData> &
     CrossFilterTransformedProps;

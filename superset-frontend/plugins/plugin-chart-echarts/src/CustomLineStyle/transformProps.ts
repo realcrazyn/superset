@@ -108,6 +108,20 @@ import {
 } from '../Timeseries/transformers';
 import { EchartsCustomLineStyleFormData } from './types';
 
+const transformColorObjToString = (
+  colorObj:
+    | {
+        r: number;
+        g: number;
+        b: number;
+        a: number;
+      }
+    | undefined,
+) =>
+  colorObj
+    ? `rgba(${colorObj.r},${colorObj.g},${colorObj.b},${colorObj.a})`
+    : '';
+
 const applyStyles = (
   series: any[],
   formData: EchartsCustomLineStyleFormData,
@@ -138,25 +152,25 @@ const applyStyles = (
           ...ser.lineStyle,
           width: seriesLineWidth,
           type: seriesLineType,
-          color: seriesLineColor,
+          color: transformColorObjToString(seriesLineColor),
         }
       : {
           width: seriesLineWidth,
           type: seriesLineType,
-          color: seriesLineColor,
+          color: transformColorObjToString(seriesLineColor),
         },
 
     itemStyle: ser.itemStyle
       ? {
           ...ser.itemStyle,
           borderWidth: seriesSymbolBorderWidth,
-          borderColor: seriesSymbolBorderColor,
-          color: seriesSymbolColor,
+          borderColor: transformColorObjToString(seriesSymbolBorderColor),
+          color: transformColorObjToString(seriesSymbolColor),
         }
       : {
           borderWidth: seriesSymbolBorderWidth,
-          borderColor: seriesSymbolBorderColor,
-          color: seriesSymbolColor,
+          borderColor: transformColorObjToString(seriesSymbolBorderColor),
+          color: transformColorObjToString(seriesSymbolColor),
         },
   }));
 
@@ -257,8 +271,6 @@ export default function transformProps(
     }
     return { ...acc, [entry[0]]: entry[1] };
   }, {});
-
-  console.log(formData);
 
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
   const rebasedData = rebaseForecastDatum(data, verboseMap);
