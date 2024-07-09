@@ -28,7 +28,7 @@ import {
   EchartsLineGradientFormData,
 } from './types';
 
-export default class EchartsBubbleChartPlugin extends ChartPlugin<
+export default class EchartsLineGradientChartPlugin extends ChartPlugin<
   EchartsLineGradientFormData,
   EchartsLineGradientChartProps
 > {

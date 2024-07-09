@@ -28,7 +28,7 @@ import {
   EchartsDataTransformFilterFormData,
 } from './types';
 
-export default class EchartsBubbleChartPlugin extends ChartPlugin<
+export default class EchartsDataTransformFilterPlugin extends ChartPlugin<
   EchartsDataTransformFilterFormData,
   EchartsDataTransformFilterChartProps
 > {

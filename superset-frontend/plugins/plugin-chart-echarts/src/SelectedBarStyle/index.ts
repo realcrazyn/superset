@@ -28,7 +28,7 @@ import {
   EchartsSelectedBarStyleFormData,
 } from './types';
 
-export default class EchartsBubbleChartPlugin extends ChartPlugin<
+export default class EchartsSelectedBarStylePlugin extends ChartPlugin<
   EchartsSelectedBarStyleFormData,
   EchartsSelectedBarStyleChartProps
 > {

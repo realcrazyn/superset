@@ -25,7 +25,7 @@ import example1 from './images/example1.png';
 import example2 from './images/example2.png';
 import { EchartsNegativeChartProps, EchartsNegativeFormData } from './types';
 
-export default class EchartsBubbleChartPlugin extends ChartPlugin<
+export default class EchartsNegativeChartPlugin extends ChartPlugin<
   EchartsNegativeFormData,
   EchartsNegativeChartProps
 > {

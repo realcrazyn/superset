@@ -527,16 +527,10 @@ export default function transformProps(
     yAxis.inverse = true;
   }
 
-  const parseValue = (value: any) => {
-    if (seriesGradientIndex === 0) {
-      return Number.isNaN(new Date(+value).getFullYear())
-        ? value
-        : new Date(+value).getFullYear();
-    }
-    return Number.isNaN(new Date(+value).getFullYear())
+  const parseValue = (value: any) =>
+    Number.isNaN(new Date(+value).getFullYear())
       ? value
       : new Date(+value).getFullYear();
-  };
 
   const echartOptions: EChartsCoreOption = {
     useUTC: true,

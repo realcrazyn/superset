@@ -121,7 +121,7 @@ const transformColorObjToString = (
     ? `rgba(${colorObj.r},${colorObj.g},${colorObj.b},${colorObj.a})`
     : '';
 
-const formatData = (
+const paintSectedBar = (
   series: SeriesOption[],
   formData: EchartsTimeseriesFormData,
 ) => {
@@ -129,10 +129,10 @@ const formatData = (
     formData;
 
   if (selectedBarNameType === 'index' && !Number.isNaN(+selectedBarNameValue)) {
-    return series.map(s => ({
-      ...s,
-      data: Array.isArray(s.data)
-        ? s.data.map((dataElement: any, dataElementIndex) =>
+    return series.map(seriesItem => ({
+      ...seriesItem,
+      data: Array.isArray(seriesItem.data)
+        ? seriesItem.data.map((dataElement: any, dataElementIndex) =>
             dataElementIndex + 1 === +selectedBarNameValue
               ? {
                   value: dataElement,
@@ -145,14 +145,14 @@ const formatData = (
                 }
               : dataElement,
           )
-        : s.data,
+        : seriesItem.data,
     }));
   }
   if (selectedBarNameType === 'name' && selectedBarNameValue) {
-    return series.map(s => ({
-      ...s,
-      data: Array.isArray(s.data)
-        ? s.data.map((dataElement: any) => {
+    return series.map(seriesItem => ({
+      ...seriesItem,
+      data: Array.isArray(seriesItem.data)
+        ? seriesItem.data.map((dataElement: any) => {
             if (
               (Array.isArray(dataElement) &&
                 dataElement
@@ -178,7 +178,7 @@ const formatData = (
 
             return dataElement;
           })
-        : s.data,
+        : seriesItem.data,
     }));
   }
 
@@ -665,7 +665,7 @@ export default function transformProps(
       ),
       data: legendData as string[],
     },
-    series: formatData(dedupSeries(series), formData),
+    series: paintSectedBar(dedupSeries(series), formData),
     toolbox: {
       show: zoomable,
       top: TIMESERIES_CONSTANTS.toolboxTop,

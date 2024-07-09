@@ -117,54 +117,13 @@ import {
 } from '../Timeseries/transformers';
 import { EchartsPieLabelType } from '../Pie/types';
 
-const prepareSeries = (
-  series: SeriesOption[],
-  data: TimeseriesDataRecord[],
-  formData: EchartsTimeseriesFormData,
-  numberFormatter: ValueFormatter,
-) => {
-  const pieData = data[0]
-    ? Object.keys(data[0])
-        .filter(key => key !== formData.xAxis)
-        .map((key, keyIndex) => ({
-          value: data[0][key],
-          name: key,
-          // @ts-ignore
-          itemStyle: series[keyIndex]?.itemStyle,
-        }))
-    : [];
-
-  return [
-    ...dedupSeries(series).map(ser => ({ ...ser, smooth: true })),
-    {
-      type: 'pie',
-      id: 'pie',
-      radius: '30%',
-      center: ['50%', '25%'],
-      emphasis: {
-        focus: 'self',
-      },
-      label: {
-        show: true,
-
-        formatter: (params: CallbackDataParams) =>
-          formatPieLabel({
-            params,
-            numberFormatter,
-            labelType: EchartsPieLabelType.KeyValuePercent,
-          }),
-      },
-      // encode: {
-      //   itemName: formData.xAxis,
-      //   value: data[0][formData.xAxis],
-      //   tooltip: '2012',
-      // },
-      data: pieData,
-    },
-  ];
-};
-
 const percentFormatter = getNumberFormatter(NumberFormats.PERCENT_2_POINT);
+
+const formDataSet = (data: TimeseriesDataRecord[]) => {
+  if (!Array.isArray(data) || !data.length) return [];
+
+  return [Object.keys(data[0]), ...data.map(el => Object.values(el))];
+};
 
 export function formatPieLabel({
   params,
@@ -202,17 +161,45 @@ export function formatPieLabel({
   }
 }
 
-const formDataSet = (data: TimeseriesDataRecord[]) => {
-  if (!Array.isArray(data) || !data.length) return [];
+const prepareSeries = (
+  series: SeriesOption[],
+  data: TimeseriesDataRecord[],
+  formData: EchartsTimeseriesFormData,
+  numberFormatter: ValueFormatter,
+) => {
+  const pieData = data[0]
+    ? Object.keys(data[0])
+        .filter(key => key !== formData.xAxis)
+        .map((key, keyIndex) => ({
+          value: data[0][key],
+          name: key,
+          // @ts-ignore
+          itemStyle: series[keyIndex]?.itemStyle,
+        }))
+    : [];
 
-  return [Object.keys(data[0]), ...data.map(el => Object.values(el))];
-
-  // return [
-  //   Object.keys(data[0]).map((key, keyIndex) => [
-  //     key,
-  //     ...data.map(el => el[key]),
-  //   ]),
-  // ];
+  return [
+    ...dedupSeries(series).map(seriesItem => ({ ...seriesItem, smooth: true })),
+    {
+      type: 'pie',
+      id: 'pie',
+      radius: '30%',
+      center: ['50%', '25%'],
+      emphasis: {
+        focus: 'self',
+      },
+      label: {
+        show: true,
+        formatter: (params: CallbackDataParams) =>
+          formatPieLabel({
+            params,
+            numberFormatter,
+            labelType: EchartsPieLabelType.KeyValuePercent,
+          }),
+      },
+      data: pieData,
+    },
+  ];
 };
 
 export default function transformProps(
@@ -707,10 +694,7 @@ export default function transformProps(
       ),
       data: legendData as string[],
     },
-    series: [
-      // ...dedupSeries(series),
-      ...prepareSeries(series, data, formData, numberFormatter),
-    ],
+    series: prepareSeries(series, data, formData, numberFormatter),
     toolbox: {
       show: zoomable,
       top: TIMESERIES_CONSTANTS.toolboxTop,

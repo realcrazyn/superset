@@ -28,7 +28,7 @@ import {
   EchartsCustomLineStyleFormData,
 } from './types';
 
-export default class EchartsLineGeadientPlugin extends ChartPlugin<
+export default class EchartsCustomLineStylePlugin extends ChartPlugin<
   EchartsCustomLineStyleFormData,
   EchartsCustomLineStyleChartProps
 > {

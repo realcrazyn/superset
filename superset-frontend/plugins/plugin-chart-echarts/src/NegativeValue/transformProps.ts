@@ -123,12 +123,12 @@ const configureNegative = (
     ),
   }));
 
-  const labelSeries = newSeries.map((s: any) => ({
-    ...s,
-    data: s.data.map((d: any) =>
-      d.find((d_v: any) => +d_v < 0)
-        ? { value: d, label: { position: 'right', color: 'black' } }
-        : d,
+  const labelSeries = newSeries.map((seriesItem: any) => ({
+    ...seriesItem,
+    data: seriesItem.data.map((dataRecord: any) =>
+      dataRecord.find((dataRecordValue: any) => +dataRecordValue < 0)
+        ? { value: dataRecord, label: { position: 'right', color: 'black' } }
+        : dataRecord,
     ),
     label: {
       show: true,

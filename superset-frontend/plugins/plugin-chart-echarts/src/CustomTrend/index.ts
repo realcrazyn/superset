@@ -28,7 +28,7 @@ import {
   EchartsCustomTrendFormData,
 } from './types';
 
-export default class EchartsBubbleChartPlugin extends ChartPlugin<
+export default class EchartsCustomTrendPlugin extends ChartPlugin<
   EchartsCustomTrendFormData,
   EchartsCustomTrendChartProps
 > {

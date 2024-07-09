@@ -106,7 +106,7 @@ import {
   transformTimeseriesAnnotation,
 } from '../Timeseries/transformers';
 
-const formatData = (series: any[], formData: EchartsTimeseriesFormData) => {
+const formatData = (series: any[]) => {
   const customData = series
     .map((ser: any, ind: number) =>
       ind === 0
@@ -121,7 +121,7 @@ const formatData = (series: any[], formData: EchartsTimeseriesFormData) => {
       [],
     );
 
-  const res = [
+  const resultSeries = [
     {
       type: 'custom',
       name: 'trend',
@@ -138,8 +138,6 @@ const formatData = (series: any[], formData: EchartsTimeseriesFormData) => {
         const coordWidth = params.coordSys.width;
         const barsWid = coordWidth / params.dataInsideLength;
         const dim = barsWid / params.encode.y.length;
-
-        console.log(coordWidth, barsWid, dim, params, barLayout);
 
         // eslint-disable-next-line no-plusplus
         for (let i = 0; i < currentSeriesIndices.length; i++) {
@@ -175,12 +173,10 @@ const formatData = (series: any[], formData: EchartsTimeseriesFormData) => {
       data: customData,
       z: 100,
     },
-    // ...series,
     ...series,
   ];
 
-  console.log(res);
-  return res;
+  return resultSeries;
 };
 
 export default function transformProps(
@@ -663,7 +659,7 @@ export default function transformProps(
       ),
       data: legendData as string[],
     },
-    series: formatData(dedupSeries(series), formData),
+    series: formatData(dedupSeries(series)),
     toolbox: {
       show: zoomable,
       top: TIMESERIES_CONSTANTS.toolboxTop,
