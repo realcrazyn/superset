@@ -102,6 +102,21 @@ export const customElements: ControlSetRow[] = [
       },
     },
   ],
+  // [
+  //   {
+  //     name: 'series_filter_values1',
+  //     config: {
+  //       type: 'DndColumnSelect',
+  //       label: t('Filter Values'),
+  //       description: t('Maximal Gradient Value.'),
+  //       multi: true,
+  //       freeForm: true,
+  //       clearable: true,
+  //       default: [],
+  //       includeTime: false,
+  //     },
+  //   },
+  // ],
   [
     {
       name: 'series_filter_values',

@@ -118,14 +118,14 @@ const formatSeries = (
   formData: EchartsDataTransformFilterFormData,
   queryData: ChartDataResponseResult,
 ) => {
-  const { seriesFilterColumn, seriesFilterValues } = formData;
+  const { seriesFilterColumn, seriesFilterValues, seriesType, xAxis } =
+    formData;
 
   const parsedFilterValues = seriesFilterValues
     ?.split('|')
     .map(str => str.trim());
 
   if (parsedFilterValues?.length && seriesFilterColumn && series.length) {
-    const lineSeries = series[0];
     const { colnames, data } = queryData;
 
     const filteredData = data
@@ -135,29 +135,42 @@ const formatSeries = (
         parsedFilterValues.includes(row[colnames.indexOf(seriesFilterColumn)]),
       );
 
-    const newSeries = parsedFilterValues.map(ser => {
-      const newSeriesUnsummedData = filteredData
-        .filter(row => row[colnames.indexOf(seriesFilterColumn)] === ser)
-        .map(row => [
-          row[colnames.indexOf(formData.xAxis)],
-          row[colnames.indexOf(formData.metric.label)],
-        ]);
-      const data = [...new Set(newSeriesUnsummedData.map(s => s[0]))]
-        .sort(compareNumbers)
-        .map(row => [
-          row,
-          newSeriesUnsummedData.reduce(
-            (pv, cv) =>
-              cv[0] === row && !Number.isNaN(cv[1]) && cv[1] !== null
-                ? pv + +cv[1]
-                : pv,
-            0,
-          ),
-        ]);
+    const calculateValue = (xAxisValue: any, seriesName: string) =>
+      filteredData
+        .filter(
+          row =>
+            row[colnames.indexOf(xAxis)] === xAxisValue &&
+            row[colnames.indexOf(seriesFilterColumn)] === seriesName,
+        )
+        .reduce((accumulator, DataRecord) => {
+          const currentValue =
+            DataRecord[
+              colnames.indexOf(formData.metric.label || formData.metric)
+            ];
+
+          if (currentValue !== null && !Number.isNaN(+currentValue)) {
+            const returnSum = accumulator + +currentValue;
+
+            return returnSum;
+          }
+
+          return accumulator;
+        }, 0);
+
+    const xAxisValues = [
+      ...new Set(filteredData.map(row => row[colnames.indexOf(xAxis)])),
+    ].sort(compareNumbers);
+
+    const newSeries = parsedFilterValues.map(seriesName => {
+      const newSeriesUnsummedData = xAxisValues.map(xAxisValue => [
+        xAxisValue,
+        calculateValue(xAxisValue, seriesName),
+      ]);
 
       return {
-        type: 'line',
-        data,
+        type: seriesType,
+        data: newSeriesUnsummedData,
+        name: seriesName,
         showSymbol: false,
         // encode: {
         //   x: 'Year',
@@ -591,105 +604,105 @@ export default function transformProps(
   }
 
   const echartOptions: EChartsCoreOption = {
-    // useUTC: true,
-    // grid: {
-    //   ...defaultGrid,
-    //   ...padding,
-    // },
-    // xAxis,
-    // yAxis,
-    // tooltip: {
-    //   ...getDefaultTooltip(refs),
-    //   show: !inContextMenu,
-    //   trigger: richTooltip ? 'axis' : 'item',
-    //   formatter: (params: any) => {
-    //     const [xIndex, yIndex] = isHorizontal ? [1, 0] : [0, 1];
-    //     const xValue: number = richTooltip
-    //       ? params[0].value[xIndex]
-    //       : params.value[xIndex];
-    //     const forecastValue: any[] = richTooltip ? params : [params];
-
-    //     if (richTooltip && tooltipSortByMetric) {
-    //       forecastValue.sort((a, b) => b.data[yIndex] - a.data[yIndex]);
-    //     }
-
-    //     const rows: string[] = [];
-    //     const forecastValues: Record<string, ForecastValue> =
-    //       extractForecastValuesFromTooltipParams(forecastValue, isHorizontal);
-
-    //     Object.keys(forecastValues).forEach(key => {
-    //       const value = forecastValues[key];
-    //       if (value.observation === 0 && stack) {
-    //         return;
-    //       }
-    //       // if there are no dimensions, key is a verbose name of a metric,
-    //       // otherwise it is a comma separated string where the first part is metric name
-    //       const formatterKey =
-    //         groupBy.length === 0 ? inverted[key] : labelMap[key]?.[0];
-    //       const content = formatForecastTooltipSeries({
-    //         ...value,
-    //         seriesName: key,
-    //         formatter: forcePercentFormatter
-    //           ? percentFormatter
-    //           : getCustomFormatter(customFormatters, metrics, formatterKey) ??
-    //             defaultFormatter,
-    //       });
-    //       const contentStyle =
-    //         key === focusedSeries ? 'font-weight: 700' : 'opacity: 0.7';
-    //       rows.push(`<span style="${contentStyle}">${content}</span>`);
-    //     });
-    //     if (stack) {
-    //       rows.reverse();
-    //     }
-    //     rows.unshift(`${tooltipFormatter(xValue)}`);
-    //     return rows.join('<br />');
-    //   },
-    // },
-    // legend: {
-    //   ...getLegendProps(
-    //     legendType,
-    //     legendOrientation,
-    //     showLegend,
-    //     theme,
-    //     zoomable,
-    //     legendState,
-    //   ),
-    //   data: legendData as string[],
-    // },
-
-    xAxis: {
-      type: 'category',
-      nameLocation: 'middle',
+    useUTC: true,
+    grid: {
+      ...defaultGrid,
+      ...padding,
     },
-    yAxis: {
-      name: formData.metric.label,
+    xAxis,
+    yAxis,
+    tooltip: {
+      ...getDefaultTooltip(refs),
+      show: !inContextMenu,
+      trigger: richTooltip ? 'axis' : 'item',
+      formatter: (params: any) => {
+        const [xIndex, yIndex] = isHorizontal ? [1, 0] : [0, 1];
+        const xValue: number = richTooltip
+          ? params[0].value[xIndex]
+          : params.value[xIndex];
+        const forecastValue: any[] = richTooltip ? params : [params];
+
+        if (richTooltip && tooltipSortByMetric) {
+          forecastValue.sort((a, b) => b.data[yIndex] - a.data[yIndex]);
+        }
+
+        const rows: string[] = [];
+        const forecastValues: Record<string, ForecastValue> =
+          extractForecastValuesFromTooltipParams(forecastValue, isHorizontal);
+
+        Object.keys(forecastValues).forEach(key => {
+          const value = forecastValues[key];
+          if (value.observation === 0 && stack) {
+            return;
+          }
+          // if there are no dimensions, key is a verbose name of a metric,
+          // otherwise it is a comma separated string where the first part is metric name
+          const formatterKey =
+            groupBy.length === 0 ? inverted[key] : labelMap[key]?.[0];
+          const content = formatForecastTooltipSeries({
+            ...value,
+            seriesName: key,
+            formatter: forcePercentFormatter
+              ? percentFormatter
+              : getCustomFormatter(customFormatters, metrics, formatterKey) ??
+                defaultFormatter,
+          });
+          const contentStyle =
+            key === focusedSeries ? 'font-weight: 700' : 'opacity: 0.7';
+          rows.push(`<span style="${contentStyle}">${content}</span>`);
+        });
+        if (stack) {
+          rows.reverse();
+        }
+        rows.unshift(`${tooltipFormatter(xValue)}`);
+        return rows.join('<br />');
+      },
     },
+    legend: {
+      ...getLegendProps(
+        legendType,
+        legendOrientation,
+        showLegend,
+        theme,
+        zoomable,
+        legendState,
+      ),
+      data: legendData as string[],
+    },
+
+    // xAxis: {
+    //   type: 'category',
+    //   nameLocation: 'middle',
+    // },
+    // yAxis: {
+    //   name: formData.metric.label,
+    // },
     series: formatSeries(dedupSeries(series), formData, queryData),
-    // toolbox: {
-    //   show: zoomable,
-    //   top: TIMESERIES_CONSTANTS.toolboxTop,
-    //   right: TIMESERIES_CONSTANTS.toolboxRight,
-    //   feature: {
-    //     dataZoom: {
-    //       ...(stack ? { yAxisIndex: false } : {}), // disable y-axis zoom for stacked charts
-    //       title: {
-    //         zoom: t('zoom area'),
-    //         back: t('restore zoom'),
-    //       },
-    //     },
-    //   },
-    // },
-    // dataZoom: zoomable
-    //   ? [
-    //       {
-    //         type: 'slider',
-    //         start: TIMESERIES_CONSTANTS.dataZoomStart,
-    //         end: TIMESERIES_CONSTANTS.dataZoomEnd,
-    //         bottom: TIMESERIES_CONSTANTS.zoomBottom,
-    //         yAxisIndex: isHorizontal ? 0 : undefined,
-    //       },
-    //     ]
-    //   : [],
+    toolbox: {
+      show: zoomable,
+      top: TIMESERIES_CONSTANTS.toolboxTop,
+      right: TIMESERIES_CONSTANTS.toolboxRight,
+      feature: {
+        dataZoom: {
+          ...(stack ? { yAxisIndex: false } : {}), // disable y-axis zoom for stacked charts
+          title: {
+            zoom: t('zoom area'),
+            back: t('restore zoom'),
+          },
+        },
+      },
+    },
+    dataZoom: zoomable
+      ? [
+          {
+            type: 'slider',
+            start: TIMESERIES_CONSTANTS.dataZoomStart,
+            end: TIMESERIES_CONSTANTS.dataZoomEnd,
+            bottom: TIMESERIES_CONSTANTS.zoomBottom,
+            yAxisIndex: isHorizontal ? 0 : undefined,
+          },
+        ]
+      : [],
   };
 
   const onFocusedSeries = (seriesName: string | null) => {
