@@ -527,10 +527,17 @@ export default function transformProps(
     yAxis.inverse = true;
   }
 
-  const parseValue = (value: any) =>
-    Number.isNaN(new Date(+value).getFullYear())
-      ? value
-      : new Date(+value).getFullYear();
+  // const parseValue = (value: any) =>
+  //   Number.isNaN(new Date(+value).getFullYear())
+  //     ? value
+  //     : new Date(+value).getFullYear();
+
+  const parseValue = (value: any) => {
+    if (seriesGradientIndex === 0) {
+      return xAxisTimeFormat === 'smart_date' ? Date.parse(value) : value;
+    }
+    return yAxisFormat === 'smart_date' ? Date.parse(value) : value;
+  };
 
   const echartOptions: EChartsCoreOption = {
     useUTC: true,

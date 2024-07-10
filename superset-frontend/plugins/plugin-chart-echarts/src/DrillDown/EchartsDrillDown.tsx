@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import React, {
   useRef,
   useEffect,
@@ -26,14 +25,12 @@ import React, {
   useLayoutEffect,
   useCallback,
 } from 'react';
-import { styled } from '@superset-ui/core';
+import { DataRecord, styled } from '@superset-ui/core';
 import { ECharts, EChartsCoreOption, EChartsOption, init } from 'echarts';
-import { EchartsShareDatasetFormData } from './types';
+import { EchartsDrillDownFormData } from './types';
 import { EchartsHandler, EchartsProps, EchartsStylesProps } from '../types';
 
-export default function EchartsLinearGradient(
-  props: EchartsShareDatasetFormData,
-) {
+export default function EchartsDrillDown(props: EchartsDrillDownFormData) {
   const { height, width, echartOptions, refs } = props;
   return (
     <CustomEchart
@@ -58,7 +55,9 @@ type EchartsCustomOptions = EChartsCoreOption & {
 };
 
 type EchartsCustomProps = EchartsProps & {
-  echartOptions: EchartsCustomOptions;
+  echartOptions: EchartsCustomOptions & {
+    drilldownData: { dataGroupId: string; data: DataRecord[] }[];
+  };
 };
 
 function Echart(
@@ -147,46 +146,50 @@ function Echart(
 
   useEffect(() => {
     if (chartRef && chartRef.current) {
-      chartRef.current?.on(
-        'updateAxisPointer',
-        function (event: any, b: any, c: any) {
-          const dataset = echartOptions?.dataset?.source;
+      chartRef.current?.on('click', function (event: any) {
+        console.log('click', echartOptions.drilldownData, event.data);
 
-          const xAxisInfo = event.axesInfo[0];
-          if (xAxisInfo && dataset) {
-            const keys = dataset[0].filter(
-              (key: string, index: number) => index !== 0,
-            );
-
-            const dimension = xAxisInfo.value;
-            const pieData = dataset.find(
-              datasetElem => datasetElem[0] === dimension,
-            );
-            const finalData = keys.map(key => {
-              const keyIndex = indexOf(dataset[0], key);
-
-              return {
-                name: key,
-                value: pieData[keyIndex],
-                itemStyle: echartOptions?.series?.[keyIndex]?.itemStyle,
-              };
-            });
-
-            const pieSeries = echartOptions.series?.length
-              ? echartOptions.series?.[echartOptions.series?.length - 1]
-              : undefined;
-
-            chartRef.current?.setOption({
-              series: {
-                id: 'pie',
-                label: pieSeries?.label,
-                data: finalData,
-              },
-            });
+        if (event.data) {
+          const subData = echartOptions.drilldownData?.find(function (data) {
+            return data.dataGroupId === event.data.groupId;
+          });
+          if (!subData) {
+            return;
           }
-        },
-      );
-      return () => chartRef.current?.on('updateAxisPointer', () => {});
+          chartRef.current?.setOption({
+            xAxis: {
+              data: subData.data.map(function (item) {
+                return item[0];
+              }),
+            },
+            series: {
+              type: 'bar',
+              id: 'sales',
+              dataGroupId: subData.dataGroupId,
+              data: subData.data.map(function (item) {
+                return item[1];
+              }),
+              universalTransition: {
+                enabled: true,
+                divideShape: 'clone',
+              },
+            },
+            graphic: [
+              {
+                type: 'text',
+                left: 50,
+                top: 20,
+                style: {
+                  text: 'Back',
+                  fontSize: 18,
+                },
+                onclick: () => chartRef.current?.setOption(echartOptions),
+              },
+            ],
+          });
+        }
+      });
+      return () => chartRef.current?.on('click', () => {});
     }
   }, [echartOptions]);
 

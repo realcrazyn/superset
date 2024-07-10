@@ -73,6 +73,7 @@ import {
   EchartsCustomTrendPlugin,
   EchartsCustomLineStylePlugin,
   EchartsDataTransformFilterPlugin,
+  EchartsDrillDownPlugin,
 } from '@superset-ui/plugin-chart-echarts';
 import {
   SelectFilterPlugin,
@@ -192,6 +193,9 @@ export default class MainPreset extends Preset {
         }),
         new EchartsDataTransformFilterPlugin().configure({
           key: 'custom-data-filter',
+        }),
+        new EchartsDrillDownPlugin().configure({
+          key: 'drill-down',
         }),
         ...experimentalPlugins,
       ],

@@ -16,12 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t } from '@superset-ui/core';
+import { QueryColumn, t } from '@superset-ui/core';
 import {
+  ColumnMeta,
+  ColumnOption,
   ControlPanelsContainerProps,
   ControlPanelSectionConfig,
   ControlSetRow,
+  Dataset,
+  DATASET_TIME_COLUMN_OPTION,
   DEFAULT_SORT_SERIES_DATA,
+  ExtraControlProps,
+  FilterOption,
+  QUERY_TIME_COLUMN_OPTION,
   sections,
 } from '@superset-ui/chart-controls';
 import { DEFAULT_LEGEND_FORM_DATA } from '../constants';
@@ -32,9 +39,9 @@ import {
   LegendType,
   OrientationType,
 } from '../types';
-import { EchartsDataTransformFilterFormData } from './types';
+import { EchartsDrillDownFormData } from './types';
 
-export const DEFAULT_FORM_DATA: Partial<EchartsDataTransformFilterFormData> = {
+export const DEFAULT_FORM_DATA: Partial<EchartsDrillDownFormData> = {
   legendMargin: null,
   legendOrientation: LegendOrientation.Top,
   legendType: LegendType.Scroll,
@@ -66,7 +73,7 @@ export const DEFAULT_FORM_DATA: Partial<EchartsDataTransformFilterFormData> = {
   opacity: 0.2,
   orderDesc: true,
   rowLimit: 10000,
-  seriesType: EchartsTimeseriesSeriesType.Line,
+  seriesType: EchartsTimeseriesSeriesType.Bar,
   stack: false,
   tooltipTimeFormat: 'smart_date',
   truncateXAxis: true,
@@ -117,6 +124,7 @@ export const customElements: ControlSetRow[] = [
   //     },
   //   },
   // ],
+
   [
     {
       name: 'series_filter_values',

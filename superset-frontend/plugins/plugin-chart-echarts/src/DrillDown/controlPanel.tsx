@@ -42,7 +42,8 @@ const queryControls = {
   controlSetRows: [
     ...sections.echartsTimeSeriesQuery.controlSetRows
       .map(sec => (sec.includes('metrics') ? ['metric'] : sec))
-      .map((sec, secIndex) => (secIndex === 3 ? ['columns'] : sec)),
+      .map((sec, secIndex) => (secIndex === 3 ? ['columns'] : sec))
+      .filter(sec => !sec.includes('metric')),
   ],
 };
 

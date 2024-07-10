@@ -25,6 +25,7 @@ import {
   CategoricalColorNamespace,
   ChartDataResponseResult,
   CurrencyFormatter,
+  DataRecord,
   ensureIsArray,
   GenericDataType,
   getCustomFormatter,
@@ -107,76 +108,78 @@ import {
   transformSeries,
   transformTimeseriesAnnotation,
 } from '../Timeseries/transformers';
-import { EchartsDataTransformFilterFormData } from './types';
+import { EchartsDrillDownFormData } from './types';
 
 function compareNumbers(a: number, b: number) {
   return a - b;
 }
 
 const formatSeries = (
-  formData: EchartsDataTransformFilterFormData,
+  formData: EchartsDrillDownFormData,
   queryData: ChartDataResponseResult,
 ): any => {
-  const { seriesFilterColumn, seriesFilterValues, seriesType, xAxis } =
-    formData;
+  const { seriesFilterColumn, seriesFilterValues, xAxis } = formData;
 
   const parsedFilterValues = seriesFilterValues
     ?.split('|')
     .map(str => str.trim());
 
-  if (parsedFilterValues?.length && seriesFilterColumn) {
+  if (seriesFilterColumn && parsedFilterValues?.length) {
     const { colnames, data } = queryData;
 
-    const filteredData = data
-      .map(d => colnames.map(colname => d[colname]))
-      .filter(row =>
-        // @ts-ignore
-        parsedFilterValues.includes(row[colnames.indexOf(seriesFilterColumn)]),
-      );
+    const xAxisValues = [...new Set(data.map(dataRow => dataRow[xAxis]))].sort(
+      compareNumbers,
+    );
 
-    const calculateValue = (xAxisValue: any, seriesName: string) =>
-      filteredData
-        .filter(
-          row =>
-            row[colnames.indexOf(xAxis)] === xAxisValue &&
-            row[colnames.indexOf(seriesFilterColumn)] === seriesName,
-        )
-        .reduce((accumulator, DataRecord) => {
-          const currentValue =
-            DataRecord[
-              colnames.indexOf(formData.metric.label || formData.metric)
-            ];
-
-          if (currentValue !== null && !Number.isNaN(+currentValue)) {
-            const returnSum = accumulator + +currentValue;
-
-            return returnSum;
-          }
-
-          return accumulator;
-        }, 0);
-
-    const xAxisValues = [
-      ...new Set(filteredData.map(row => row[colnames.indexOf(xAxis)])),
-    ].sort(compareNumbers);
-
-    const newSeries = parsedFilterValues.map(seriesName => {
-      const newSeriesUnsummedData = xAxisValues.map(xAxisValue => [
-        xAxisValue,
-        calculateValue(xAxisValue, seriesName),
-      ]);
+    const calculateXaxisValue = (data: DataRecord[], xAxisValue: any) => {
+      const filteredData = data.filter(row => row[xAxis] === xAxisValue);
 
       return {
-        data: newSeriesUnsummedData,
-        name: seriesName,
-        id: seriesName,
+        seriesData: [
+          xAxisValue,
+          filteredData.reduce(
+            (accumulator, row) =>
+              row[seriesFilterColumn] !== null &&
+              !Number.isNaN(Number(row[seriesFilterColumn]))
+                ? accumulator + Number(row[seriesFilterColumn])
+                : accumulator + 1,
+            0,
+          ),
+        ],
+        drillDownData: {
+          dataGroupId: xAxisValue,
+          data: [
+            parsedFilterValues.map(columnName => [
+              columnName,
+              filteredData.reduce(
+                (accumulator, row) =>
+                  row[columnName] !== null &&
+                  !Number.isNaN(Number(row[columnName]))
+                    ? accumulator + Number(row[columnName])
+                    : accumulator + 1,
+                0,
+              ),
+            ]),
+          ],
+        },
       };
-    });
+    };
 
-    return newSeries;
+    const dataRecords = xAxisValues.map(xAxisValue =>
+      calculateXaxisValue(data, xAxisValue),
+    );
+    return [
+      [
+        {
+          id: seriesFilterColumn,
+          name: seriesFilterColumn,
+          data: dataRecords.map(record => record.seriesData),
+        },
+      ],
+      dataRecords.map(record => record.drillDownData),
+    ];
   }
-
-  return [];
+  return [[], []];
 };
 
 export default function transformProps(
@@ -260,7 +263,7 @@ export default function transformProps(
     yAxisTitleMargin,
     yAxisTitlePosition,
     zoomable,
-  }: EchartsDataTransformFilterFormData = { ...DEFAULT_FORM_DATA, ...formData };
+  }: EchartsDrillDownFormData = { ...DEFAULT_FORM_DATA, ...formData };
   const refs: Refs = {};
   const groupBy = ensureIsArray(groupby);
   const labelMap = Object.entries(label_map).reduce((acc, entry) => {
@@ -317,7 +320,7 @@ export default function transformProps(
     },
   );
 
-  const rawSeries = formatSeries(formData, queryData);
+  const [rawSeries, drilldownData] = formatSeries(formData, queryData);
 
   const showValueIndexes = extractShowValueIndexes(rawSeries, {
     stack,
@@ -673,6 +676,7 @@ export default function transformProps(
     // },
     // series: formatSeries(dedupSeries(series), formData, queryData),
     series: dedupSeries(series),
+    drilldownData,
     toolbox: {
       show: zoomable,
       top: TIMESERIES_CONSTANTS.toolboxTop,

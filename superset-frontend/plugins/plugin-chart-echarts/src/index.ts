@@ -38,6 +38,7 @@ export { default as EchartsBubbleChartPlugin } from './Bubble';
 export { default as EchartsWaterfallChartPlugin } from './Waterfall';
 //
 export { default as EchartsNegativeChartPlugin } from './NegativeValue';
+export { default as EchartsDrillDownPlugin } from './DrillDown';
 export { default as EchartsLineGradientChartPlugin } from './LineGradient';
 export { default as EchartsSelectedBarStylePlugin } from './SelectedBarStyle';
 export { default as EchartsShareDatasetPlugin } from './ShareDataset';
