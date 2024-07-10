@@ -38,11 +38,16 @@ export default class EchartsSelectedBarStylePlugin extends ChartPlugin<
       controlPanel,
       loadChart: () => import('./EchartsSelectedBarStyle'),
       metadata: new ChartMetadata({
-        behaviors: [Behavior.InteractiveChart],
+        behaviors: [
+          Behavior.InteractiveChart,
+          Behavior.DrillToDetail,
+          Behavior.DrillBy,
+        ],
         category: t('Correlation'),
         credits: ['https://echarts.apache.org'],
         description: t('Customize selected bar style'),
         exampleGallery: [{ url: example1 }, { url: example2 }],
+
         name: t('Select bar styles'),
         tags: [
           t('Multi-Dimensions'),

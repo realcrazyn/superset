@@ -38,7 +38,11 @@ export default class EchartsLineGradientChartPlugin extends ChartPlugin<
       controlPanel,
       loadChart: () => import('./EchartsLinearGradient'),
       metadata: new ChartMetadata({
-        behaviors: [Behavior.InteractiveChart],
+        behaviors: [
+          Behavior.InteractiveChart,
+          Behavior.DrillToDetail,
+          Behavior.DrillBy,
+        ],
         category: t('Correlation'),
         credits: ['https://echarts.apache.org'],
         description: t(

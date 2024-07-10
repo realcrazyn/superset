@@ -147,33 +147,28 @@ function Echart(
   useEffect(() => {
     if (chartRef && chartRef.current) {
       chartRef.current?.on('click', function (event: any) {
-        console.log('click', echartOptions.drilldownData, event.data);
+        const oldOptions = chartRef.current?.getOption();
 
-        if (event.data) {
-          const subData = echartOptions.drilldownData?.find(function (data) {
-            return data.dataGroupId === event.data.groupId;
-          });
+        if (event?.data?.[0]) {
+          const subData = echartOptions.drilldownData?.find(
+            data => data.dataGroupId === event.data[0],
+          );
           if (!subData) {
             return;
           }
-          chartRef.current?.setOption({
+
+          const newOpts = {
             xAxis: {
-              data: subData.data.map(function (item) {
-                return item[0];
-              }),
+              data: subData.data.map(d => d[0]),
             },
-            series: {
-              type: 'bar',
-              id: 'sales',
-              dataGroupId: subData.dataGroupId,
-              data: subData.data.map(function (item) {
-                return item[1];
-              }),
-              universalTransition: {
-                enabled: true,
-                divideShape: 'clone',
+            yAxis: {},
+            series: [
+              {
+                type: 'bar',
+                id: subData.dataGroupId,
+                data: subData.data.map(d => d[1]),
               },
-            },
+            ],
             graphic: [
               {
                 type: 'text',
@@ -183,13 +178,38 @@ function Echart(
                   text: 'Back',
                   fontSize: 18,
                 },
-                onclick: () => chartRef.current?.setOption(echartOptions),
+                onclick: () => {
+                  chartRef.current?.setOption(echartOptions, true);
+                },
               },
             ],
-          });
+          };
+
+          console.log(
+            'click',
+            oldOptions,
+            newOpts,
+            echartOptions,
+            event.data,
+            chartRef.current,
+          );
+
+          chartRef.current?.setOption(newOpts, true);
         }
       });
-      return () => chartRef.current?.on('click', () => {});
+      return () => {
+        chartRef.current?.on('click', () => {});
+
+        Object.entries(eventHandlers || {}).forEach(([name, handler]) => {
+          chartRef.current?.off(name);
+          chartRef.current?.on(name, handler);
+        });
+
+        Object.entries(zrEventHandlers || {}).forEach(([name, handler]) => {
+          chartRef.current?.getZr().off(name);
+          chartRef.current?.getZr().on(name, handler);
+        });
+      };
     }
   }, [echartOptions]);
 

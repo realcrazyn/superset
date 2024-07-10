@@ -148,19 +148,17 @@ const formatSeries = (
         ],
         drillDownData: {
           dataGroupId: xAxisValue,
-          data: [
-            parsedFilterValues.map(columnName => [
-              columnName,
-              filteredData.reduce(
-                (accumulator, row) =>
-                  row[columnName] !== null &&
-                  !Number.isNaN(Number(row[columnName]))
-                    ? accumulator + Number(row[columnName])
-                    : accumulator + 1,
-                0,
-              ),
-            ]),
-          ],
+          data: parsedFilterValues.map(columnName => [
+            columnName,
+            filteredData.reduce(
+              (accumulator, row) =>
+                row[columnName] !== null &&
+                !Number.isNaN(Number(row[columnName]))
+                  ? accumulator + Number(row[columnName])
+                  : accumulator + 1,
+              0,
+            ),
+          ]),
         },
       };
     };
